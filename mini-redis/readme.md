@@ -1,130 +1,90 @@
-# 🧠 Simple In-Memory DB Server
+# Mini Redis — Concurrent In-Memory Key-Value Store in Go
 
-A lightweight implementation of an in-memory database server written in Python. It supports basic data storage, retrieval, and manipulation operations using different data structures like strings, lists, and hashes — similar in spirit to Redis, but simplified for learning and experimentation.
+## Overview
 
----
-
-## 🚀 Features
-
-- ✅ In-memory key-value storage
-- 🧵 Supports:
-  - Strings (`SET`, `GET`)
-  - Lists (`LPUSH`, `RPUSH`, `LPOP`, `RPOP`)
-  - Hashes (`HSET`, `HGET`, `HDEL`)
-- 💬 Simple TCP-based command protocol
-- 🛠 Modular design for easy extension
-- ⚡ Fast execution with no disk persistence
+This project is a minimalist Redis-like key-value store implemented in Go. It supports concurrent clients over TCP and basic Redis commands such as `GET`, `SET`, `DEL`, `QUIT`, and `HELP`. The focus is on practicing Go concurrency patterns, channel-based worker pools, and graceful server shutdown using contexts.
 
 ---
 
-## 📦 Commands Supported
+## Features
 
-| Command              | Description                        |
-|----------------------|------------------------------------|
-| `SET key val`        | Set a string value                 |
-| `GET key`            | Get a string value                 |
-| `LPUSH key val`      | Push value to the head of a list   |
-| `RPUSH key val`      | Push value to the tail of a list   |
-| `LPOP key`           | Pop value from the head of a list  |
-| `RPOP key`           | Pop value from the tail of a list  |
-| `HSET key field val` | Set a hash field                   |
-| `HGET key field`     | Get a hash field                   |
-| `HDEL key field`     | Delete a hash field                |
-| `DEL key`            | Delete a key                       |
-| `KEYS`               | List all stored keys               |
+- **TCP Server:** Listens on a configurable port and accepts multiple concurrent client connections.
+- **Command Parsing:** Supports a simple parser to handle commands with argument validation.
+- **Worker Pool:** Uses a fixed-size pool of worker goroutines to process client requests concurrently.
+- **Shared Store:** Maintains a global thread-safe map protected by mutexes for storing keys and values.
+- **Client Management:** Each client has dedicated input reading and output writing goroutines communicating via channels.
+- **Graceful Shutdown:** Uses Go's `context` package and OS signal handling to allow clean server shutdown on Ctrl+C.
+- **Command Handling:** Supports basic commands with proper responses and error handling.
+- **Per-Client Done Signaling:** Clients have a done flag or channel for clean connection teardown and avoiding panics.
 
 ---
 
-## 🛠 Architecture
+## Architecture & Components
 
-```
-+-----------------------+
-|  Client (e.g., netcat)|  <---> TCP socket
-+-----------------------+
-             |
-             v
-+-----------------------+
-|  Command Parser       |
-+-----------------------+
-             |
-             v
-+-----------------------+
-|  Dispatcher           | --> routes to correct handler
-+-----------------------+
-     |       |       |
-     v       v       v
-  Strings   Lists   Hashes
-   Dict      List    Dict of Dicts
-```
+- **`server.go`:**  
+  - Initializes the listener, context, and channels.  
+  - Handles incoming TCP connections, spawning goroutines for each client.  
+  - Manages worker pool and dispatch loop with cancellation support.  
+
+- **`client.go`:**  
+  - Defines the `Client` struct with connection, output channel, and done signaling.  
+  - Implements client writer goroutine to serialize writes to TCP connection.
+
+- **`store.go`:**  
+  - Implements the shared key-value store with concurrency-safe methods.  
+
+- **`parser.go`:**  
+  - Parses raw input lines into typed command requests with argument validation.  
+
+- **`handler.go`:**  
+  - Maps parsed requests to store operations and returns formatted responses.  
 
 ---
 
-## 🧪 Example Usage
+## Concurrency Model
 
-You can test the server using telnet or netcat:
-
-```sh
-$ nc localhost 6379
-SET name ChatDB
-OK
-GET name
-ChatDB
-LPUSH users alice
-OK
-RPUSH users bob
-OK
-LPOP users
-alice
-```
+- **Worker Pool:** A fixed number of worker goroutines consume jobs from a buffered `jobs` channel, process them by interacting with the store, and send results on a `results` channel.
+- **Dispatcher:** A goroutine listens on `results` and forwards responses to appropriate clients via their output channels.
+- **Per-client Goroutines:** Each client connection runs:
+  - A reader goroutine parsing input and pushing jobs.
+  - A writer goroutine serializing output from the client’s output channel.
+- **Context Cancellation:**  
+  - A root `context.Context` is used to propagate shutdown signals to all goroutines.  
+  - OS signals (`SIGINT`) trigger cancellation and graceful shutdown of the server and workers.
 
 ---
 
-## 📁 Project Structure
+## How Shutdown Works
 
-```
-.
-├── server.py         # Main server loop
-├── parser.py         # Parses incoming commands
-├── db.py             # In-memory data storage and operations
-├── commands/         # Handlers for each command type
-│   ├── string.py
-│   ├── list.py
-│   └── hash.py
-└── README.md
-```
+- Ctrl+C triggers `os.Interrupt` signal, captured by a dedicated goroutine.
+- This cancels the root context and closes the listener socket, unblocking accept.
+- Workers and dispatcher detect context cancellation and exit gracefully.
+- Client connections detect closed output channels or done flags and close cleanly.
 
 ---
 
-## 🧑‍💻 Getting Started
+## Usage Recap
 
-1. Clone the repository:
-
-   ```sh
-   git clone https://github.com/yourusername/simple-inmem-db.git
-   cd simple-inmem-db
-   ```
-
-2. Run the server:
-
-   ```sh
-   python3 server.py
-   ```
-
-3. Connect using netcat or write a custom client.
+- Run server with `go run .`
+- Connect with `nc localhost 9999` or `telnet localhost 9999`
+- Use commands:  
+  - `SET key value`  
+  - `GET key`  
+  - `DEL key`  
+  - `HELP`  
+  - `QUIT` to disconnect  
+- Server logs connections and shutdown events.
 
 ---
 
-## 🧩 Future Improvements
+## Key Learnings / Reminders
 
-- Add support for expiration (TTL)
-- Add persistence (snapshot or AOF)
-- Add transactions or pipelining
-- Implement pub/sub model
+- Use **Go contexts** for clean cancellation across multiple goroutines.
+- Structure concurrency with **channels** for safe communication.
+- Separate concerns: parsing, handling, storage, client IO.
+- Avoid closing channels from multiple places to prevent panics.
+- Start channel-consuming goroutines before sending data to avoid deadlocks.
+- Use **worker pools** to scale request processing without spawning unlimited goroutines.
+- Handle client disconnects and errors gracefully to avoid leaks.
+- Use buffered channels sized to your CPU count for efficient throughput.
 
----
-
-## 📝 License
-
-MIT License. Use it freely for learning or extending.
-
----
