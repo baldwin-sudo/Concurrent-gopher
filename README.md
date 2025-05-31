@@ -104,11 +104,11 @@ nc localhost 9999
 ```
 Try commands like:
 
-SET key value
-GET key
-DEL key
-HELP
-QUIT
+- SET key value
+- GET key
+- DEL key
+- HELP
+- QUIT
 
 
 ⸻
