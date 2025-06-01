@@ -10,7 +10,7 @@ This project is a minimalist Redis-like key-value store implemented in Go. It su
 
 - **TCP Server:** Listens on a configurable port and accepts multiple concurrent client connections.
 - **Command Parsing:** Supports a simple parser to handle commands with argument validation.
-- **Worker Pool:** Uses a fixed-size pool of worker goroutines to process client requests concurrently.
+- **Load Balancer:**Uses a pool of workers and balances the load between them , by assigning the next job to the least loaded worker  using a heap datastructure . Workers are concurrent ofc !
 - **Shared Store:** Maintains a global thread-safe map protected by mutexes for storing keys and values.
 - **Client Management:** Each client has dedicated input reading and output writing goroutines communicating via channels.
 - **Graceful Shutdown:** Uses Go's `context` package and OS signal handling to allow clean server shutdown on Ctrl+C.
