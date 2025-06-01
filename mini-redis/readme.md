@@ -5,7 +5,7 @@
 This project is a minimalist Redis-like key-value store implemented in Go. It supports concurrent clients over TCP and basic Redis commands such as `GET`, `SET`, `DEL`, `QUIT`, and `HELP`. The focus is on practicing Go concurrency patterns, channel-based worker pools, and graceful server shutdown using contexts.
 
 ---
-
+  
 ## Features
 
 - **TCP Server:** Listens on a configurable port and accepts multiple concurrent client connections.
