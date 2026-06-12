@@ -3,7 +3,7 @@
 
 Exploration of **concurrency patterns in Go**!
 
-This repository contains projects I've built (or am currently building) while learning how to leverage Go's powerful concurrency features, including goroutines, channels, sync primitives, and more. The projects here demonstrate real-world use cases where concurrency helps improve performance and efficiency.
+This repository contains projects I've built (or am currently building) while learning how to leverage Go's powerful concurrency features, including goroutines, channels, sync primitives, and more. 
 
 ---
 
@@ -83,27 +83,6 @@ An exploration of load balancing techniques using Go concurrency features.
 - Basic network programming and file system traversal in Go.
 - Designing and implementing concurrent load balancers using Go primitives.
 =======
-### 3. Concurrent Load Balancer Simulation (Work In Progress)
-
-An exploration of load balancing techniques using Go concurrency features.
->>>>>>> 406ddb3 (project: concurrent matrix multiplication)
-
-**Simple Version:**
-
-- Implements a worker pool pattern where incoming requests are distributed evenly among workers.
-- Uses channels to send requests and receive responses.
-- Demonstrates basic load distribution with goroutines and WaitGroups.
-
-**Advanced Version (Planned):**
-
-- A more sophisticated load balancer that assigns requests to workers based on a heap-based priority queue or load metrics.
-- Features:
-  - Dynamic worker selection
-  - Backpressure handling
-  - Timeouts
-- Aims to achieve better balancing under varying workloads.
-
----
 
 ### 4. Concurrent Matrix Multiplication
 
@@ -138,3 +117,16 @@ Generates two 2000x2000 matrices, multiplies them both sequentially and concurre
 - Basic network programming and file system traversal in Go.
 - Designing and implementing concurrent load balancers using Go primitives.
 - Chunk-based parallelism for matrix computations using concurrency.
+### 5. Mini Redis — Concurrent In-Memory Key-Value Store in Go
+#### Overview :
+This project is a minimalist Redis-like key-value store implemented in Go. It supports concurrent clients over TCP and basic Redis commands such as GET, SET, DEL, QUIT, and HELP. The focus is on practicing Go concurrency patterns, channel-based worker pools, and graceful server shutdown using contexts.
+#### Features :
+
+- TCP Server: Listens on a configurable port and accepts multiple concurrent client connections.
+- Command Parsing: Supports a simple parser to handle commands with argument validation.
+- Load Balancer: Uses a pool of workers and balances the load between them , by assigning the next job to the least loaded worker -using a heap datastructure . Workers are concurrent ofc !
+- Shared Store: Maintains a global thread-safe map protected by mutexes for storing keys and values.
+- Client Management: Each client has dedicated input reading and output writing goroutines communicating via channels.
+- Graceful Shutdown: Uses Go's context package and OS signal handling to allow clean server shutdown on Ctrl+C.
+- Command Handling: Supports basic commands with proper responses and error handling.
+- Per-Client Done Signaling: Clients have a done flag or channel for clean connection teardown and avoiding panics.
