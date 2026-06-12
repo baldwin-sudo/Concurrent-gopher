@@ -4,7 +4,6 @@
 Exploration of **concurrency patterns in Go**!
 
 This repository contains projects I've built (or am currently building) while learning how to leverage Go's powerful concurrency features, including goroutines, channels, sync primitives, and more. The projects here demonstrate real-world use cases where concurrency helps improve performance and efficiency.
->>>>>>> 406ddb3 (project: concurrent matrix multiplication)
 
 ---
 
@@ -35,7 +34,6 @@ A simple port scanner that:
 - Uses sync.Map and WaitGroup for safe concurrent state management.
 - Compares timing results between sequential and concurrent scans.
 
-<<<<<<< HEAD
 Usage:
 =======
 - Scans a set of common TCP ports on a target host.
@@ -45,7 +43,6 @@ Usage:
 
 **Usage:**
 
->>>>>>> 406ddb3 (project: concurrent matrix multiplication)
 ```bash
 go run main.go -host=target_hostname_or_ip
 ```
@@ -56,7 +53,6 @@ go run main.go -host=target_hostname_or_ip
 
 ---
 
-<<<<<<< HEAD
 ### 3. Concurrent Load Balancer Simulation *(Work In Progress)*
 
 An exploration of load balancing techniques using Go concurrency features.
