@@ -1,5 +1,5 @@
 
-# Go Concurrency Patterns — My Learning Journey
+# Go Concurrency Patterns : Learning Journey
 
 Exploration of **concurrency patterns in Go**!
 
