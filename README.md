@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 
-# Go Concurrency Patterns — My Learning Journey
-
-My Playground while learning  **concurrency patterns in Go**! 
-
-This repository contains projects I've built (or i'am currently  building) while learning how to leverage Go's powerful concurrency features, including goroutines, channels, sync primitives, and more. The projects here demonstrate real-world use cases where concurrency helps improve performance and efficiency.
-=======
 # Go Concurrency Patterns — My Learning Journey
 
 Exploration of **concurrency patterns in Go**!
